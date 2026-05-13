@@ -1,34 +1,3 @@
-pathway1	GO:annotation	gene1
-pathway2	GO:annotation	gene1
-pathway3	GO:annotation	gene1
-pathway4	GO:annotation	gene1
-pathway1	GO:annotation	gene2
-pathway5	GO:annotation	gene2
-pathway4	GO:annotation	gene2
-pathway1	GO:annotation	gene3
-pathway1	GO:annotation	gene4
-pathway1	GO:annotation	gene5
-pathway6	GO:annotation	gene3
-pathway7	GO:annotation	gene3
-pathway8	GO:annotation	gene4
-pathway9	GO:annotation	gene5
-pathway10	GO:annotation	gene6
-pathway11	GO:annotation	gene1
-pathway12	GO:annotation	gene1
-pathway13	GO:annotation	gene1
-pathway14	GO:annotation	gene1
-pathway11	GO:annotation	gene2
-pathway15	GO:annotation	gene2
-pathway14	GO:annotation	gene2
-pathway11	GO:annotation	gene3
-pathway13	GO:annotation	gene3
-pathway16	GO:annotation	gene4
-pathway17	GO:annotation	gene5
-pathway17	GO:annotation	gene6
-pathway16	GO:annotation	gene3
-pathway17	GO:annotation	gene3
-pathway18	GO:annotation	gene4
-pathway19	GO:annotation	gene5
-pathway20	GO:annotation	gene6
-gene1	GO:annotation	pathway22
-pathway21	new	pathway22
+version https://git-lfs.github.com/spec/v1
+oid sha256:1bc4bdfc30bd6028db339b3af4ce93574e2a07dfb172202fdfebc9d7257ec07f
+size 999

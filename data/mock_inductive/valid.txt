@@ -1,12 +1,3 @@
-pathway5	GO:annotation	gene4
-pathway2	GO:annotation	gene4
-pathway3	GO:annotation	gene4
-pathway4	GO:annotation	gene4
-pathway6	GO:annotation	gene5
-pathway2	GO:annotation	gene5
-pathway3	GO:annotation	gene5
-pathway4	GO:annotation	gene5
-pathway6	GO:annotation	gene6
-pathway2	GO:annotation	gene6
-pathway3	GO:annotation	gene6
-pathway4	GO:annotation	gene6
+version https://git-lfs.github.com/spec/v1
+oid sha256:3a16c58c6e0a4e76c23e4fff8918fb708babfe3895bf59fbabb68eebfd9f6236
+size 347
