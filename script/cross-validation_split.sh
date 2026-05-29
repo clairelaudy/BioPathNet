@@ -40,7 +40,7 @@ TYPE=".*"
 if [[ $# -eq 4 ]] ; then
     TYPE="$4"
 fi
-EDGE="^\w*\t${TYPE}\t\w*$"
+EDGE="^.*\t${TYPE}\t.*$"
 
 if [[ $P_VALI -gt 100 ]] ; then
     echo "<percent_validated> is greater than 100" >&2
