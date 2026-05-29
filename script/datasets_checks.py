@@ -95,7 +95,11 @@ if __name__ == "__main__":
 
     if sources(data, "names") != sources(data, "types"):
         logging.error(f"{asked.types} and {asked.names} do not have the same elements IDs")
-
+        symdiff = sources(data, "names").symmetric_difference(sources(data, "types"))
+        if symdiff:
+            log_head(symdiff)
+        
+        
     check_no_intersections(data, ["train", "valid", "test"])
 
     all_names = \
