@@ -13,7 +13,7 @@ From: ubuntu:22.04  # Torch needs libc6-dev >= 2.29
     # Update the available packages list.
     apt -y update
     # And add the "universe" repository (allow to install many more software).
-    apt -y install software-properties-common time
+    apt -y install software-properties-common # time
     add-apt-repository universe
     apt -y update
     # Update the operating systems (install last versions with bugfixes).
@@ -62,8 +62,8 @@ From: ubuntu:22.04  # Torch needs libc6-dev >= 2.29
 
 %runscript
     $BPNPY -c "import torch; print('Is CUDA available?:', torch.cuda.is_available()); print('CUDA device:', torch.cuda.get_device_name(0))"
-    cd /BioPathNet
-    # bin/run_apptainer.sh $*
+    # WARNING: user should bind /BioPathNet when running this container.
+    # For example, with: --bind /home/me/code/my_biopathnet:/BioPathNet
     $BPNPY /BioPathNet/script/bpn_api.py $*
 
 

@@ -137,6 +137,22 @@ def merge_with_entity_vocab(df, dataset, entity_vocab, relation_vocab):
     df = pd.merge(df, lookup, how="left", left_on="pred_node", right_on="short", sort=False)
     return df
 
+def generate_predictions_dict(predictions_df, predictions_file):
+    """
+    Generate a dictionary of the results, indexes with predicted links.
+    Output the dictionary in a text file at the same place as the csv prediction file.
+    """
+    predictions_dict = {}
+    for i, row in predictions_df.iterrows():
+        key = "".join([row["query_node"], "-", row["query_relation"], "->", row["pred_node"]])
+        value = {
+            "prediction_score": row["prediction_score"],
+            "rank": i
+        }
+        predictions_dict[key] = value
+        
+    with open(predictions_file, 'a+') as out:
+        pprint.pprint(predictions_dict, stream=out)
         
 if __name__ == "__main__":
     args, vars = util.parse_args()
@@ -181,8 +197,10 @@ if __name__ == "__main__":
     df = get_prediction(cfg, solver, relation_vocab, _dataset)
     print("Predictions done")
     df = merge_with_entity_vocab(df, _dataset, entity_vocab, relation_vocab)
-    df = df.sort_values(['query_node','query_relation', 'prediction_score'], ascending=[True, False,False])
+#    df = df.sort_values(['query_node','query_relation', 'prediction_score'], ascending=[True, False,False])
+    df = df.sort_values(['prediction_score'], ascending=[False], ignore_index=True)
     logger.warning("Link prediction done")
+    generate_predictions_dict(df, os.path.join( working_dir, "predictions.txt"))
     logger.warning("Saving to file")
     print(os.path.join(working_dir, "predictions.csv"))
-    df.to_csv(os.path.join( working_dir, "predictions.csv"), index=False, sep="\t")
+    df.to_csv(os.path.join( working_dir, "predictions.csv"), index=True, sep="\t")

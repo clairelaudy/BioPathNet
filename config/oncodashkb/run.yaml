@@ -39,5 +39,7 @@ engine:
   
 train:
   num_epoch: 5
+
+fast_test: 2
   
 metric: mrr

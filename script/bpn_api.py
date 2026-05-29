@@ -12,6 +12,7 @@ parser.add_argument("-c", "--config",      type=str, nargs=1,   default="config/
 parser.add_argument("-g", "--gpus",        type=str, nargs=1,   default="null", help="the list of gpus to be used. Eg [0]", required=True)
 parser.add_argument("-s", "--seed",        type=int, nargs="?", default=None)
 parser.add_argument("-cp", "--checkpoint", type=str, nargs="?", default=None, help="path to the stored trained model to be used.")
+parser.add_argument("-b", "--biopathnet", type=str, default=".", help="Path to BioPathNet source directory")
 args = parser.parse_args()
 
 logger.debug(f"Args = {args}")
@@ -19,21 +20,21 @@ logger.debug(f"Args = {args}")
 cmd = []
 function = args.function[0]
 
-# Update the config files in order to have the rigth paths
-wild_card = "{{BIOPATHNET}}"
-cwd = os.getcwd()
+# Update the config files in order to have the right paths
+# wild_card = "{{BIOPATHNET}}"
+# cwd = os.getcwd()
 config_in = args.config[0]
-config_out = "".join([config_in[:-5], "_apptainer.yaml"])
-with open(config_in, 'r') as cfi:
-    lines = cfi.read()
-    lines = lines.replace(wild_card, cwd)
+# config_out = "".join([config_in[:-5], "_apptainer.yaml"])
+# with open(config_in, 'r') as cfi:
+#     lines = cfi.read()
+#     lines = lines.replace(wild_card, cwd)
 
-with open(config_out, 'w') as cfo:
-    cfo.write(lines)
+# with open(config_out, 'w') as cfo:
+#     cfo.write(lines)
 
 if function=="run":
-    cmd = ["python", f"script/{function}.py",
-                "-c", config_out,
+    cmd = ["python", f"{args.biopathnet}/script/{function}.py",
+                "-c", config_in,
                 "--gpus", args.gpus[0]
             ]
 
@@ -45,8 +46,8 @@ elif (function=="predict" or
     function=="visualize_inductive"):
     if not args.checkpoint:
         logger.error(f"ERROR: Missing --checkpoint option for the {function} function")
-    cmd = ["python", f"script/{function}.py",
-                "-c", config_out,
+    cmd = ["python", f"{args.biopathnet}/script/{function}.py",
+                "-c", config_in,
                 "--gpus", args.gpus[0],
                 "--checkpoint", args.checkpoint
     ]

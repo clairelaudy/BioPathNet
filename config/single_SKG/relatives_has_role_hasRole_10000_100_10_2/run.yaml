@@ -1,10 +1,10 @@
-output_dir: /BioPathNet/experiments/oncodashkb/
+output_dir: {{BIOPATHNET}}/experiments/single_SKG/relatives_has_role_hasRole_10000_100_10_2/
 
 dataset:
   class: biomedical
-  path: /BioPathNet/data/oncodashkb/20260407/
+  path: {{BIOPATHNET}}/data/single_SKG/relatives_has_role_hasRole_10000_100_10_2/
   include_factgraph: yes
-  files: ['brg.txt', 'graph_learning.txt', 'graph_valid.txt', 'graph_test.txt']
+  files: ['brg.txt', 'graph_learning_with_validation_and_test.txt', 'edges_for_validation.txt', 'test_relations.txt']
 
 task:
   class: KnowledgeGraphCompletionBiomed
@@ -16,7 +16,7 @@ task:
     aggregate_func: pna
     short_cut: yes
     layer_norm: yes
-    dependent: yes
+    dependent: no
     symmetric: no
   criterion: bce
   num_negative: 32
@@ -35,11 +35,9 @@ optimizer:
 
 engine:
   gpus: {{ gpus }}
-  batch_size: 16
+  batch_size: 8
   
 train:
   num_epoch: 5
-
-fast_test: 2
   
 metric: mrr

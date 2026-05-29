@@ -1,13 +1,3 @@
-gene1	up	gene2
-gene1	down	gene3
-gene1	up	gene4
-gene2	up	gene4
-gene3	up	gene4
-gene4	up	gene5
-gene5	down	gene6
-gene5	down	gene1
-gene2	phos	gene1
-gene3	phos	gene4
-gene4	phos	gene2
-gene4	down	gene3
-gene4	down	gene2
+version https://git-lfs.github.com/spec/v1
+oid sha256:dc89de9ce020be73ae22ad437f3745457980dfad3c6931e8280027acaed3b58f
+size 210

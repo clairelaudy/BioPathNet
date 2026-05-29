@@ -3,12 +3,12 @@ import sys
 import pprint
 import logging
 
+from collections import defaultdict
+
 import torch
 
 from torchdrug import core
 from torchdrug.utils import comm
-
-from hlif_metrics.structures import conceptualGraph as cg 
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from biopathnet import dataset, layer, model, task, util
@@ -72,6 +72,16 @@ def load_vocab(dataset):
 
     return entity_vocab, relation_vocab
 
+def load_types(dataset):
+    entity_mapping = {}
+    with open(type_file, "r") as fin:
+        for line in fin:
+            k, v = line.strip().split("\t")
+            entity_mapping[k] = v
+    entity_types = [entity_mapping[t] for t in dataset.entity_vocab]
+
+    return entity_types
+
 def visualize_path(solver, triplet, entity_vocab, relation_vocab):
     num_relation = len(relation_vocab)
     h, t, r = triplet.tolist()
@@ -88,21 +98,27 @@ def visualize_path(solver, triplet, entity_vocab, relation_vocab):
     logger.warning("")
     samples = (triplet, inverse)
     for sample, ranking in zip(samples, rankings):
+        cg_explanations = {}
         h, t, r = sample.squeeze(0).tolist()
         h_name = entity_vocab[h]
         t_name = entity_vocab[t]
         r_name = relation_vocab[r % num_relation]
+        h_type = entity_types[h]
+        t_type = entity_types[t]
         logger.debug(f"h_name = {h_name}, r_name = {r_name}, t_name ={t_name}")
         if r >= num_relation:
             r_name += "^(-1)"
         logger.warning(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
         logger.warning("rank(%s | %s, %s) = %g" % (h_name, r_name, t_name, ranking))
 
+        prediction_ref = f"{h_name}-{r_name}-{t_name}"
+        nb_expl = 0
         paths, weights = solver.model.visualize(sample)
         for path, weight in zip(paths, weights):
             triplets = []
-            cg_relations = []
-            cg_concepts = []
+            dict_relations = {}
+            dict_concepts = {}
+            nb_rel = 0
             for h, t, r in path:
                 cg_rel = {}
                 cg_c1 = {}
@@ -110,25 +126,37 @@ def visualize_path(solver, triplet, entity_vocab, relation_vocab):
                 h_name = entity_vocab[h]
                 t_name = entity_vocab[t]
                 r_name = relation_vocab[r % num_relation]
-                cg_c1["ctype"] = ""
-                cg_c1["referent"] = "h_name"
-                cg_c2["ctype"] = ""
-                cg_c2["referent"] = "t_name"
+                cg_r_name = r_name.split()[0]
+                cg_c1["ctype"] = h_type
+                cg_c1["referent"] = h_name
+                cg_c2["ctype"] = t_type
+                cg_c2["referent"] = t_name
                 if r >= num_relation:
                     r_name += "^(-1)"
-                    cg_rel["rtype"] = r_name
-                    cg_rel["args"] = [t_name, c_name]
+                    cg_rel["rtype"] = cg_r_name
+                    cg_rel["args"] = [t_name, h_name]
                 else:
-                    cg_rel["rtype"] = r_name
+                    cg_rel["rtype"] = cg_r_name
                     cg_rel["args"] = [h_name, t_name]
                 triplets.append("<%s, %s, %s>" % (h_name, r_name, t_name))
-                cg_concepts.append(cg_c1)
-                cg_concepts.append(cg_c2)
-                cg_relations.append(cg_rel)
-                cg_graph = cg.ConceptualGraph(cg_concepts, cg_relations)
-                
+                dict_concepts[h_name] = cg_c1
+                dict_concepts[t_name] = cg_c2
+                dict_relations[f"r{nb_rel}"] = cg_rel
+                nb_rel += 1
+                # cg_graph = cg.ConceptualGraph(cg_concepts, cg_relations)
+            cg_dict = {
+                "concepts": dict_concepts,
+                "relations": dict_relations
+            }    
+            cg_explanations["".join([str(nb_expl), "_", prediction_ref])] = cg_dict
+            nb_expl += 1
             logger.warning("weight: %g\n\t%s" % (weight, " ->\n\t".join(triplets)))
 
+        #for each prediction, create a file containing the graph explanations
+        expl_file = os.path.join(working_dir, "".join(["explanation_", prediction_ref.replace(" ", "")]))
+        with open(expl_file, 'w') as out:
+            pprint.pprint(cg_explanations, stream = out)
+        logger.warning(f"CG graph explanations saved in {expl_file}")
 
 if __name__ == "__main__":
     args, vars = util.parse_args()
@@ -136,6 +164,8 @@ if __name__ == "__main__":
     working_dir = util.create_working_directory(cfg)
     vocab_file = os.path.join(os.path.dirname(__file__), cfg.dataset.path, "entity_names.txt")
     vocab_file = os.path.abspath(vocab_file)
+    type_file = os.path.join(os.path.dirname(__file__), cfg.dataset.path, "entity_types.txt")
+    type_file = os.path.abspath(type_file)
     torch.manual_seed(args.seed + comm.get_rank())
 
     logger.warning("Working directory: %s" % working_dir)
@@ -150,6 +180,7 @@ if __name__ == "__main__":
         solver_load(cfg.checkpoint)
         
     entity_vocab, relation_vocab = load_vocab(_dataset)
-
+    entity_types = load_types(_dataset)
+    
     for i in range(len(solver.test_set)):
         visualize_path(solver, solver.test_set[i], entity_vocab, relation_vocab)

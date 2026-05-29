@@ -1,10 +1,10 @@
-output_dir: /BioPathNet/experiments/oncodashkb/
+output_dir: /BioPathNet/experiments/single_SKG/relatives_complex/1000/10/2/siblingOf/0/
 
 dataset:
   class: biomedical
-  path: /BioPathNet/data/oncodashkb/20260407/
+  path: /BioPathNet/data/single_SKG/relatives_complex/1000/10/2/siblingOf/0/
   include_factgraph: yes
-  files: ['brg.txt', 'graph_learning.txt', 'graph_valid.txt', 'graph_test.txt']
+  files: ['brg.txt', 'graph_learning.txt', 'graph_validation.txt', 'graph_test.txt']
 
 task:
   class: KnowledgeGraphCompletionBiomed
@@ -20,7 +20,7 @@ task:
     symmetric: no
   criterion: bce
   num_negative: 32
-  strict_negative: yes
+  strict_negative: no
   adversarial_temperature: 0.5
   sample_weight: no
   heterogeneous_negative: yes
@@ -35,11 +35,9 @@ optimizer:
 
 engine:
   gpus: {{ gpus }}
-  batch_size: 16
+  batch_size: 32
   
 train:
   num_epoch: 5
-
-fast_test: 2
   
 metric: mrr

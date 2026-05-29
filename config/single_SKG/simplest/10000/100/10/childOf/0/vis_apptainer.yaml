@@ -1,12 +1,11 @@
-output_dir: /BioPathNet/experiments/oncodashkb/
+output_dir: {{BIOPATHNET}}/experiments/single_SKG/simplest/10000/100/10/childOf/0/
 
 dataset:
   class: biomedical
-  path: /BioPathNet/data/oncodashkb/20260407/
-  include_factgraph: yes
-  files: ['brg.txt', 'graph_learning.txt', 'graph_valid.txt', 'graph_test.txt']
+  path: {{BIOPATHNET}}/data/single_SKG/simplest/10000/100/10/childOf/0/
+  files: ['brg.txt', 'graph_learning.txt', 'graph_validation.txt', 'graph_test.txt']
 
-task:
+task: 
   class: KnowledgeGraphCompletionBiomed
   model:
     class: NBFNet
@@ -19,14 +18,12 @@ task:
     dependent: yes
     symmetric: no
   criterion: bce
-  num_negative: 32
+  num_negative: 16
   strict_negative: yes
   adversarial_temperature: 0.5
   sample_weight: no
   heterogeneous_negative: yes
   heterogeneous_evaluation: yes
-  # neg_samp_strategy: sans # [sans, degree, inv_degree]
-  # sans_rw_hops: "1000:2" # default 1000:2 # k=2 hop neighborhood approximated with 1000 random walks 
   full_batch_eval: no
 
 optimizer:
@@ -35,11 +32,10 @@ optimizer:
 
 engine:
   gpus: {{ gpus }}
-  batch_size: 16
+  batch_size: 32
   
 train:
   num_epoch: 5
-
-fast_test: 2
   
 metric: mrr
+checkpoint: {{checkpoint}}
