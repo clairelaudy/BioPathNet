@@ -4,7 +4,7 @@ dataset:
   class: biomedical
   path: {{DATA_DIR}}
   include_factgraph: yes
-  files: ['brg.txt', 'graph_learning.txt', 'graph_validation.txt', 'graph_test.txt']
+  files: ['brg.txt', 'skg__train.txt', 'skg__validation.txt', 'skg__test.txt']
 
 task:
   class: KnowledgeGraphCompletionBiomed
