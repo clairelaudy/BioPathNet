@@ -34,7 +34,7 @@ def get_root_logger(file=True):
 
 def create_working_directory(cfg):
     # ask ZC: how to add jobID to working_dir.tmp; bug in program; make unique when run in parallel
-    file_name = "".join(['working_dir', curr_time.strftime("%Y-%m-%d-%H-%M-%S-%f"), "tmp"]) 
+    file_name = "".join(['working_dir', datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f"), "tmp"]) 
     world_size = comm.get_world_size()
     if world_size > 1 and not dist.is_initialized():
         comm.init_process_group("nccl", init_method="env://")
