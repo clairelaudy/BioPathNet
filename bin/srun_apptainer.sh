@@ -46,7 +46,7 @@ cmd="srun \
     -p gpu \
     -q gpu \
     --gres=gmem=80G,gpu:1 \
-    --mem=50G \
+    --mem=64G \
     apptainer \
         run \
             --nv \
