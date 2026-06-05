@@ -55,10 +55,14 @@ def tgt(s):
     return res
 
 
+def names(s):
+    return src(s) | tgt(s)
+
+
 def check_no_intersection(data, lhs, rhs):
     inter = data[lhs].intersection(data[rhs])
     if inter:
-        logging.error(f"{lhs} and {rhs} intersect on:")
+        logging.error(f"{lhs} ({len(data[lhs])} items) and {rhs} ({len(data[rhs])} items) intersect on {len(inter)} items:")
         log_head(inter)
     else:
         logging.info(f"{lhs} and {rhs} do not intersect")
@@ -83,7 +87,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--names", default="entity_names.txt")
 
     parser.add_argument("--log-level", default = "DEBUG")
-    parser.add_argument("--max", default = 10)
+    parser.add_argument("--max", default = 5)
 
 
     asked = parser.parse_args()
@@ -142,7 +146,10 @@ if __name__ == "__main__":
                 log_head(all_diff, asked.max)
 
                 for k in ["train", "valid", "test", "brg"]:
-                    diff = all_names.difference(recorded)
+                    diff = names(data[k]).difference(recorded)
                     if diff:
                         logging.error(f"There's {len(diff)} names that are in {vars(asked)[k]} but not in {asked.names}")
+                        log_head(diff, asked.max)
+                    else:
+                        logging.info(f"All names in {vars(asked)[k]} are in {asked.names}")
 
