@@ -4,6 +4,24 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
+def load(filename):
+    data = set()
+    with open(filename) as fd:
+        for line in fd:
+            triple = tuple(line.strip().split("\t"))
+            data.add(triple)
+    return data
+
+
+def is_in(source,edge,target, skg):
+    if (source,edge,target) in skg  \
+    or (target,edge.replace("rev_", ""),source) in skg:
+        return True
+    else:
+        return False
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -12,25 +30,19 @@ if __name__ == "__main__":
     parser.add_argument("ranked_edges")
     parser.add_argument("skg_learned")
     parser.add_argument("skg_expected")
+    parser.add_argument("edges_known")
 
     asked = parser.parse_args()
 
-    skg_learned = set()
-    with open(asked.skg_learned) as fd:
-        for line in fd:
-            triple = tuple(line.strip().split("\t"))
-            skg_learned.add(triple)
-
-    skg_expected = set()
-    with open(asked.skg_expected) as fd:
-        for line in fd:
-            triple = tuple(line.strip().split("\t"))
-            skg_expected.add(triple)
+    skg_learned = load(asked.skg_learned)
+    skg_expected = load(asked.skg_expected)
+    edges_known = load(asked.edges_known)
 
     ranks = pd.read_csv(asked.ranked_edges, sep="\t", usecols=["query_node", "query_relation", "pred_node", "prediction_score"])
     ranks["reverse"] = False
     ranks["in_learned"] = False
     ranks["in_expected"] = False
+    ranks["known"] = False
     ranks["name"] = ranks["query_node"]+ranks["query_relation"]+ranks["pred_node"]
     ranks["predicted_edge"] = ""
     ranks["type"] = ""
@@ -41,24 +53,27 @@ if __name__ == "__main__":
     for i,row in ranks.iterrows():
         source,edge,target = (ranks.loc[i, "query_node"], ranks.loc[i, "query_relation"], ranks.loc[i, "pred_node"])
 
-        reverse_tag = "r"
+        reverse_tag = "forward"
         if re.match("^rev_", edge):
             ranks.loc[i, "reverse"] = True
-            reverse_tag = "R"
+            reverse_tag = "reverse"
 
-        in_learned_tag = "l"
-        if (source,edge,target) in skg_learned  \
-        or (target,edge.replace("rev_", ""),source) in skg_learned:
+        in_learned_tag = "forgot"
+        if is_in(source,edge,target, skg_learned):
             ranks.loc[i, "in_learned"] = True
-            in_learned_tag = "L"
+            in_learned_tag = "learned"
 
-        in_expected_tag = "e"
-        if (source,edge,target) in skg_expected  \
-        or (target,edge.replace("rev_", ""),source) in skg_expected:
+        in_expected_tag = "unexpected"
+        if is_in(source,edge,target, skg_expected):
             ranks.loc[i, "in_expected"] = True
-            in_expected_tag = "E"
+            in_expected_tag = "expected"
 
-        ranks.loc[i, "type"] = in_learned_tag + in_expected_tag + reverse_tag
+        known_tag = "unknown"
+        if is_in(source,edge,target, edges_known):
+            ranks.loc[i, "known"] = True
+            known_tag = "known"
+
+        ranks.loc[i, "type"] = "_".join([known_tag, in_learned_tag, in_expected_tag, reverse_tag])
         ranks.loc[i, "predicted_edge"] = ranks.loc[i, "name"] + "_" + ranks.loc[i, "type"]
 
     f, ax = plt.subplots(figsize=(6, 15))
