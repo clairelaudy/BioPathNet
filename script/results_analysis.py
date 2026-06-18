@@ -22,6 +22,15 @@ def is_in(source,edge,target, skg):
         return False
 
 
+def matches(source, edge, target, skg):
+    for skg_source, skg_edge, skg_target in skg:
+        if (skg_source==source and skg_target==target and edge in skg_edge) \
+        or (skg_source==target and skg_target==source and edge in skg_edge):
+            return True
+        else:
+            return False
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -59,17 +68,18 @@ if __name__ == "__main__":
             reverse_tag = "reverse"
 
         in_learned_tag = "forgot"
-        if is_in(source,edge,target, skg_learned):
+        if matches(source,edge,target, skg_learned):
+        # if is_in(source,edge,target, skg_learned):
             ranks.loc[i, "in_learned"] = True
             in_learned_tag = "learned"
 
         in_expected_tag = "unexpected"
-        if is_in(source,edge,target, skg_expected):
+        if matches(source,edge,target, skg_expected):
             ranks.loc[i, "in_expected"] = True
             in_expected_tag = "expected"
 
         known_tag = "unknown"
-        if is_in(source,edge,target, edges_known):
+        if matches(source,edge,target, edges_known):
             ranks.loc[i, "known"] = True
             known_tag = "known"
 
