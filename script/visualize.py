@@ -181,6 +181,8 @@ if __name__ == "__main__":
         
     entity_vocab, relation_vocab = load_vocab(_dataset)
     entity_types = load_types(_dataset)
-    
+
+    logger.warning("Starting explainations generations...")
     for i in range(len(solver.test_set)):
+        logger.warning(f"Test relation #{i}")
         visualize_path(solver, solver.test_set[i], entity_vocab, relation_vocab)
