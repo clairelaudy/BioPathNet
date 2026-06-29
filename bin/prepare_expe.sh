@@ -9,7 +9,9 @@ if [ $# -lt 2 ] ; then
     exit 2
 fi
 
-module load apptainer cuda
+if command -v module >/dev/null 2>&1 ; then
+    module load apptainer cuda
+fi
 
 # Need realpath for the underlying BPN run in a container that mounts the CWD.
 input_datadir="$(realpath $1)"
@@ -39,9 +41,7 @@ for input_conf in "$@" ; do
     name=$(basename "$input_conf")
     stem="${name%.*}"
     ext="${name##*.}"
-    cat $input_conf | sed "s,{{DATA_DIR}},${input_datadir},g" | sed "s,{{OUTPUT_DIR}},${work_dir},g" > "${work_dir}/${stem}_${timestamp}.${ext}"
+    cat $input_conf | sed "s,{{DATA_DIR}},${input_datadir},g" | sed "s,{{OUTPUT_DIR}},${work_dir},g" > "${work_dir}/bpn_${stem}.${ext}"
+    echo "${work_dir}/bpn_${stem}.${ext}"  # On stdout for capture.
 done
-
-echo "Config:" >&2
-ls -1 *${timestamp}*
 

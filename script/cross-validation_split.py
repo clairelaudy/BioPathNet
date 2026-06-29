@@ -94,7 +94,8 @@ if __name__ == "__main__":
     data["test"]  = skg_typed[n_vali:n_vali+n_test]
 
     assert len(data["validation"]) > 0
-    assert len(data["test"]) > 0
+    if len(data["test"]) == 0:
+        logging.warning("Test data is empty")
 
     s_vali = set(data["validation"])
     s_test = set(data["test"])
@@ -106,6 +107,8 @@ if __name__ == "__main__":
         logging.info(f)
         with open(f, 'w') as fd:
             for triple in data[k]:
-                fd.write(f"{'\t'.join(triple)}\n")
+                n='\n'
+                t='\t'
+                fd.write(f"{t.join(triple)}{n}")
             logging.info(f"\t{len(data[k])} items")
 

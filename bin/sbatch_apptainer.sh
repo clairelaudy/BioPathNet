@@ -3,10 +3,11 @@
 set -e
 set -o pipefail
 
-if [[ $# -lt 2 || "$1" == "-h" || "$1" == "--help" ]] ; then
-    echo "Usage: $(basename $0) <BioPathNet_dir> <input_conf> [command [container_arguments]]" >&2
+if [[ $# -lt 3 || "$1" == "-h" || "$1" == "--help" ]] ; then
+    echo "Usage: $(basename $0) <BioPathNet_dir> <input_conf> <job_name> <job_dep> [command [container_arguments]]" >&2
     echo "This will use the current working directory for outputs." >&2
     echo "'command' may be: 'run' (the default), 'visualize', 'predict', 'eval_and_predict', 'visualize_graph', 'eval_and_predict_inductive', or 'visualize_inductive'. " >&2
+    echo "Set job_dep to 0 for no SLURM dependency."
     exit 2
 fi
 
@@ -17,6 +18,17 @@ shift
 
 input_conf="$1"
 shift
+
+job_name="$1"
+shift
+
+job_dep="$1"
+shift
+
+dep_arg=""
+if [[ $job_dep -eq 0 ]] ; then
+    dep_arg="--dependency=after:${job_dep}"
+fi
 
 if cat $input_conf | grep DATA_DIR ; then
     echo "ERROR: the input config file contains placeholders." >&2
@@ -41,7 +53,10 @@ fi
 echo "Config:" >&2
 cat ${input_conf}
 
-cmd="srun \
+cmd="sbatch \
+    --parsable \
+    --job-name $job_name \
+    $dep_arg \
     -p gpu \
     -q gpu \
     --gres=gmem=80G,gpu:1 \
@@ -57,4 +72,4 @@ cmd="srun \
 
 echo "Submitting:" >&2
 echo $cmd >&2
-$cmd
+$cmd  # Outputs the SLURMID on stdout for capture
