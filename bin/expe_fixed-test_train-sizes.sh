@@ -3,27 +3,26 @@
 set -e
 set -o pipefail
 
-if [[ $# -ne 7 ]] ; then
+if [[ $# -ne 8 ]] ; then
     echo "ERROR usage" >&2
     echo "Run from your experiment directory:" >&2
-    echo "$(basename $0) <DECIDER_data_dir> <tested_triples_file> <validation_split_perc> <min_subsampling_perc> <incr_subsampling_perc> <max_subsampling_perc> <nb_runs>" >&2
-    echo "NOTE: <DECIDER_data_dir> has to be in oncodashkb/data/" >&2
+    echo "$(basename $0) <oncodashkb_dir> <DECIDER_data_dir> <tested_triples_file> <validation_split_perc> <min_subsampling_perc> <incr_subsampling_perc> <max_subsampling_perc> <nb_runs>" >&2
     exit 2
 fi
 
-decider="$1"
-tested="$2"
-split="$3"
-min="$4"
-incr="$5"
-max="$6"
-nb_runs="$7"
+odkb="$(realpath $1)"
+decider="$(realpath $2)"
+tested="$(realpath $3)"
+split="$4"
+min="$5"
+incr="$6"
+max="$7"
+nb_runs="$8"
 
 expe="oncodashkb_builds__$(basename $decider)__$(basename -s .txt $tested)__validation-split-$split"
 echo "Experience in: $expe" >&2
 mkdir -p "$expe"
 
-odkb=$(dirname $(realpath $decider/..))
 bpn=$(dirname $(realpath $0/..))
 
 for run in $(seq $nb_runs) ; do
