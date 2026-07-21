@@ -23,7 +23,8 @@ expe="oncodashkb_builds__$(basename $decider)__$(basename -s .txt $tested)__vali
 echo "Experience in: $expe" >&2
 mkdir -p "$expe"
 
-bpn=$(dirname $(realpath $0/..))
+bpn=$(realpath "$(dirname $0)/..")
+# bpn=$(basename $(dirname $(realpath $0/..)))
 
 for run in $(seq $nb_runs) ; do
     for size in $(seq $min $incr $max) ; do
@@ -65,11 +66,11 @@ for run in $(seq $nb_runs) ; do
         conf_vis="bpn_vis.yaml"
 
         # Submit the training run and get its SLURMID
-        jobid=$($bpn/bin/sbatch_apptainer.sh $bpn $conf_train run Ts${size}r${run} 0 --seed $run)
+        jobid=$($bpn/bin/sbatch_apptainer.sh "$bpn" "$conf_train" "run" "Ts${size}r${run}" "0" --seed $run)
 
         # Make them depends on the training.
-        $bpn/bin/sbatch_apptainer.sh $bpn $conf_pred predict   Ps${size}r${run} $jobid --seed $run
-        $bpn/bin/sbatch_apptainer.sh $bpn $conf_vis  visualize Vs${size}r${run} $jobid --seed $run
+        $bpn/bin/sbatch_apptainer.sh "$bpn" "$conf_pred" "predict"   "Ps${size}r${run}" "$jobid" --seed $run
+        $bpn/bin/sbatch_apptainer.sh "$bpn" "$conf_vis"  "visualize" "Vs${size}r${run}" "$jobid" --seed $run
         popd
     done # size
 done # run
