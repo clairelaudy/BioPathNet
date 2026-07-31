@@ -60,5 +60,4 @@ if args.seed:
     cmd += ["-s", args.seed]
 
 logger.info(f"BioPathNet call command = {cmd}")
-print(f"BioPathNet call command = {cmd}")
-subprocess.run(" ".join(cmd))
+subprocess.run(cmd, shell=True)
